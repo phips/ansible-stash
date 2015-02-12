@@ -1,0 +1,14 @@
+---
+# defaults file for stash
+
+stash_version:     3.6.1
+stash_baseurl:     http://www.atlassian.com/software/stash/downloads/binary
+stash_installer:   atlassian-stash-{{ stash_version }}.tar.gz
+stash_user:        stash
+# use postgresql or mysql
+stash_dbconnector: postgresql
+stash_tmp:         /var/tmp
+stash_installto:   /opt
+stash_home:        /srv/atlassian/stash/home
+stash_dbname:      stash
+stash_dbuser:      stash
