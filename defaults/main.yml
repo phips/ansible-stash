@@ -1,7 +1,7 @@
 ---
 # defaults file for stash
 
-stash_version:     3.6.1
+stash_version:     3.8.0
 stash_baseurl:     http://www.atlassian.com/software/stash/downloads/binary
 stash_installer:   atlassian-stash-{{ stash_version }}.tar.gz
 stash_user:        stash

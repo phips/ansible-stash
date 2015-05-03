@@ -12,6 +12,11 @@
 - name: Ensure user exists
   user: name={{ stash_user }} group={{ stash_user }} state=present
 
+- name: Ensure required packages are installed
+  yum:
+    name: "{{ item }}"
+  with_items: stash_packages
+
 - name: Fetch installer
   get_url:
     url={{ stash_baseurl }}/{{ stash_installer }}
@@ -35,8 +40,8 @@
 - name: Set home dir in environment config script
   lineinfile:
     dest={{ stash_installto }}/atlassian/stash-{{ stash_version }}/bin/setenv.sh
-    regexp="^#STASH_HOME"
-    line="STASH_HOME={{ stash_home }}"
+    regexp="STASH_HOME=.*$"
+    line="export STASH_HOME={{ stash_home }}"
     state=present
   tags: install
 
@@ -51,26 +56,27 @@
             owner=root group=root mode=0755
   tags: install
 
-- name: add proxy config to Tomcat settings
-  template: src=server.xml.j2 dest=/opt/atlassian/stash-{{ stash_version }}/conf/server.xml
-            owner={{ stash_user }} group={{ stash_user }} mode=0644
-  tags: install
-  when: jira_proxy
-
 # login_user not specified, uses the module default. RTFM.
 - name: Ensure database user exists
-  postgresql_user: name={{ stash_dbuser }}
-                   login_host={{ dbhost }}
-                   login_password={{ dbpass }}
-                   state=present
+  postgresql_user:
+    name: "{{ stash_dbuser }}"
+    password: "{{ stash_dbpass }}"
+    state: present
+  sudo: yes
+  sudo_user: postgres
 
 # login_user not specified, uses the module default. RTFM.
 - name: Ensure database exists
-  postgresql_db: name={{ stash_dbname }}
-                 login_host={{ dbhost }}
-                 login_password={{ dbpass }}
-                 owner={{ stash_dbuser }}
-                 state=present
+  postgresql_db:
+    name: "{{ stash_dbname }}"
+    owner: "{{ stash_dbuser }}"
+    state: present
+  sudo: yes
+  sudo_user: postgres
 
 - name: Ensure service is set to run
-  service: name=stash state=restarted enabled=yes
+  service:
+    name: stash
+    state: started
+    enabled: yes
+
